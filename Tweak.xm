@@ -1,26 +1,35 @@
-@interface _UIBatteryView : UIView
+#import <UIKit/UIKit.h>
 
+@interface _UIBatteryView : UIView
 @property (nonatomic,retain) CAShapeLayer * bodyLayer; 
 @property (nonatomic,retain) CAShapeLayer * pinLayer;
 @property (nonatomic,retain) CALayer * fillLayer; 
 @property (nonatomic,retain) CAShapeLayer * batteryLayer;
+@property (nonatomic,retain) CAShapeLayer * batteryBodyLayer;
 @property (assign,nonatomic) double chargePercent; 
-
+@property (nonatomic,assign) CGFloat bodyColorAlpha;
+-(UIColor *)bodyColor;
 -(UIColor *)_batteryFillColor;
-
 @end
-
 
 %hook _UIBatteryView
 %property (nonatomic, retain) CAShapeLayer * batteryLayer;
+%property (nonatomic, retain) CAShapeLayer * batteryBodyLayer;
 
 -(void)_commonInit{
 	%orig;
 	/*
 	Init our battery layer and add it to the stack!
 	*/
+	self.bodyColorAlpha = 0;
+	self.batteryBodyLayer = [[CAShapeLayer alloc] init];
 	self.batteryLayer = [[CAShapeLayer alloc] init];
-	[self.bodyLayer addSublayer:self.batteryLayer];
+	[self.bodyLayer addSublayer:self.batteryBodyLayer];
+	[self.batteryBodyLayer addSublayer:self.batteryLayer];
+}
+
+-(void)setBodyColorAlpha:(CGFloat)arg1{
+	%orig(0);
 }
 
 -(void)_updateFillLayer{
@@ -69,6 +78,7 @@
 }
 
 -(void)layoutSubviews {
+	%orig;
 	/*
 	Setup our path for drawing a circle.
 	TODO: Add other shapes ;)
@@ -77,8 +87,6 @@
 	CGMutablePathRef thePath = CGPathCreateMutable();
 	CGPathAddArc(thePath, NULL, 6.7, 6.5, 5, -M_PI_2, M_PI_2*3, NO);
 	CGPathCloseSubpath(thePath);
-
-	%orig;
 	/*
 	Remove the pin layer
 	*/
@@ -86,10 +94,11 @@
 	/*
 	Setup the body layer
 	*/
-	[self.bodyLayer setPath:thePath];
-	self.bodyLayer.lineWidth = 3;
-	self.bodyLayer.fillColor = [UIColor clearColor].CGColor;
-	self.bodyLayer.backgroundColor = [UIColor clearColor].CGColor;
+	[self.batteryBodyLayer setPath:thePath];
+	self.batteryBodyLayer.lineWidth = 3;
+	self.batteryBodyLayer.fillColor = [UIColor clearColor].CGColor;
+	self.batteryBodyLayer.backgroundColor = [UIColor clearColor].CGColor;
+	self.batteryBodyLayer.strokeColor = [[self bodyColor] colorWithAlphaComponent:0.4].CGColor;
 
 	/*
 	Setup the battery layer

@@ -1,9 +1,11 @@
-Package: com.wizage.bducharge
-Name: BroDoYouCharge
+Package: com.kome1.bducharge-reborn
+Name: BroDoYouCharge Reborn
 Depends: mobilesubstrate
 Version: 1.0.0
 Architecture: iphoneos-arm
 Description: Let's change up the way we look at the charging bolt
-Maintainer: wizages <wizagesmax@gmail.com>
-Author: wizages <wizagesmax@gmail.com>
+Maintainer: kome1
+Author: wizages, kome1
 Section: Tweaks
+Conflicts: com.wizage.bducharge
+Replaces: com.wizage.bducharge
